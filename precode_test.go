@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMainHandlerSuccess(t *testing.T) {
@@ -16,8 +17,8 @@ func TestMainHandlerSuccess(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code, "Ожидался статус 200 OK")
-	assert.NotEmpty(t, responseRecorder.Body.String(), "Тело ответа не должно быть пустым")
+	require.Equal(t, http.StatusOK, responseRecorder.Code, "Ожидался статус 200 OK")
+	assert.NotEmpty(t, responseRecorder.Body, "Тело ответа не должно быть пустым")
 }
 
 func TestMainHandlerWrongCity(t *testing.T) {
@@ -27,7 +28,7 @@ func TestMainHandlerWrongCity(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code, "Ожидался статус 400 Bad Request")
+	require.Equal(t, http.StatusBadRequest, responseRecorder.Code, "Ожидался статус 400 Bad Request")
 	assert.Equal(t, "wrong city value", responseRecorder.Body.String(), "Ожидался ответ 'wrong city value'")
 }
 
@@ -39,6 +40,7 @@ func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
+	require.Equal(t, http.StatusOK, responseRecorder.Code, "Ожидался статус 200 OK")
 	responseBody := responseRecorder.Body.String()
 	cafes := strings.Split(responseBody, ",")
 	assert.Equal(t, totalCount, len(cafes), "expected cafe count: %d, got %d", totalCount, len(cafes))
